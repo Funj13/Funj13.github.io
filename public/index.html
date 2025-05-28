@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doçuras da Cidimily - Confeitaria Artesanal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Visualization & Content Choices:
+        - Hero: Imagem de destaque (placeholder), título, slogan, CTA -> Goal: Atrair, Informar -> Interaction: Botão de scroll para produtos -> Justification: Primeira impressão impactante.
+        - Sobre Nós: Texto e imagem (placeholder) -> Goal: Conectar, Humanizar -> Interaction: Nenhuma -> Justification: Construir confiança.
+        - Nossas Delícias (Galeria): Grid de cards de produtos (placeholders) com nome, breve descrição e preço (opcional) -> Goal: Apresentar, Despertar Desejo -> Interaction: Botões de filtro por categoria (Bolos, Doces, Cupcakes) que atualizam a galeria via JS. Hover nos cards para um leve zoom. -> Justification: Exploração fácil e visual dos produtos.
+        - Como Encomendar: Lista numerada de passos -> Goal: Facilitar Ação -> Interaction: Nenhuma -> Justification: Clareza no processo.
+        - Depoimentos: Cards com citações (fictícias) -> Goal: Prova Social -> Interaction: Nenhuma (poderia ser um carrossel, mas simplificado para esta versão) -> Justification: Aumentar credibilidade.
+        - Contacto: Formulário (UI) e informações -> Goal: Capturar Leads, Informar -> Interaction: Simulação de envio de formulário com JS. -> Justification: Facilitar o contacto direto.
+        CONFIRMING NO SVG/Mermaid. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3E8FF; /* purple-100, um lilás bem claro para o fundo geral */
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            padding-bottom: 2px; /* Adiciona um pequeno espaço para a borda não sobrepor o texto */
+        }
+        .nav-link.active {
+            color: #D53F8C; /* pink-600 */
+            border-bottom: 2px solid #D53F8C; /* pink-600 */
+        }
+        .nav-link:hover {
+            color: #EC4899; /* pink-500 */
+        }
+        section {
+            scroll-margin-top: 70px; /* Ajuste para a altura da nav */
+        }
+        .hero-bg {
+            /* Imagem de placeholder com cores da nova paleta */
+            background-image: url('https://placehold.co/1200x800/E9D5FF/86198F?text=Delícias+da+Cidimily'); /* purple-200 com texto purple-700 */
+            background-size: cover;
+            background-position: center;
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(213, 63, 140,0.1), 0 4px 6px -2px rgba(213, 63, 140,0.05); /* Sombra rosa suave */
+        }
+        .filter-button.active {
+            background-color: #EC4899; /* pink-500 */
+            color: white;
+        }
+        .filter-button {
+            background-color: #FBCFE8; /* pink-100 */
+            color: #9D174D; /* pink-700 */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .filter-button:hover {
+            background-color: #F9A8D4; /* pink-300 */
+        }
+        .section-title-font { /* Renomeado para evitar conflito com .section-title de Tailwind se existir */
+            font-family: 'Georgia', serif; /* Uma fonte serifada elegante para títulos */
+            color: #86198F; /* purple-700, um roxo mais escuro para títulos */
+        }
+        .btn-primary {
+            background-color: #EC4899; /* pink-500 */
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #D53F8C; /* pink-600 */
+        }
+         .btn-secondary {
+            background-color: transparent;
+            color: #EC4899; /* pink-500 */
+            border: 2px solid #EC4899; /* pink-500 */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #EC4899; /* pink-500 */
+            color: white;
+        }
+        .text-highlight { /* Para textos que precisam de destaque na nova paleta */
+            color: #9D174D; /* pink-700 */
+        }
+        .bg-section-alt { /* Fundo alternativo para secções, se necessário */
+            background-color: #FAF5FF; /* purple-50, um lilás ainda mais claro */
+        }
+    </style>
+</head>
+<body class="text-neutral-800">
+
+    <nav class="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 h-16 flex justify-between items-center">
+            <a href="#inicio" class="text-2xl lg:text-3xl font-bold section-title-font whitespace-nowrap">Doçuras da Cidimily</a>
+            <div class="hidden md:flex items-center space-x-5 lg:space-x-6">
+                <a href="#inicio" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Início</a>
+                <a href="#sobre" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Sobre Nós</a>
+                <a href="#delicias" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Nossas Delícias</a>
+                <a href="#encomendar" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Como Encomendar</a>
+                <a href="#depoimentos" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Depoimentos</a>
+                <a href="#contacto" class="nav-link px-2 py-2 text-sm font-medium text-purple-700">Contacto</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-purple-700 hover:text-pink-500 focus:outline-none p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg border-t border-purple-100">
+            <a href="#inicio" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Início</a>
+            <a href="#sobre" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Sobre Nós</a>
+            <a href="#delicias" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Nossas Delícias</a>
+            <a href="#encomendar" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Como Encomendar</a>
+            <a href="#depoimentos" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Depoimentos</a>
+            <a href="#contacto" class="block nav-link px-4 py-3 text-sm text-purple-700 hover:bg-purple-50">Contacto</a>
+        </div>
+    </nav>
+
+    <main>
+        <section id="inicio" class="hero-bg h-screen flex items-center justify-center text-center text-white pt-16">
+            <div class="bg-black bg-opacity-50 p-8 sm:p-12 rounded-lg">
+                <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold section-title-font !text-white mb-4">Doçuras da Cidimily</h1>
+                <p class="text-xl sm:text-2xl mb-8 font-light">Adoçando os seus momentos mais especiais com arte e sabor!</p>
+                <a href="#delicias" class="btn-primary text-lg font-semibold py-3 px-8 rounded-lg shadow-md">Ver Nossas Delícias</a>
+            </div>
+        </section>
+
+        <section id="sobre" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl sm:text-5xl font-bold section-title-font mb-12 text-center">Nossa Doce História</h2>
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                    <div class="md:w-1/2">
+                        <img src="https://placehold.co/600x400/FBCFE8/86198F?text=Mãos+preparando+um+doce" alt="[Imagem de Mãos preparando um doce artesanal]" class="rounded-lg shadow-xl w-full">
+                    </div>
+                    <div class="md:w-1/2 text-lg text-neutral-700 leading-relaxed">
+                        <p class="mb-4">Na Doçuras da Cidimily, cada bolo, cada doce é uma obra de arte comestível, criada com paixão, os melhores ingredientes e uma pitada generosa de carinho. Nascemos do sonho de transformar momentos simples em memórias inesquecíveis através do paladar.</p>
+                        <p class="mb-4">Acreditamos que a confeitaria artesanal tem o poder de despertar sorrisos e unir pessoas. Por isso, dedicamo-nos a cada detalhe, desde a escolha dos ingredientes frescos até à decoração final, garantindo que cada encomenda seja uma experiência única e deliciosa.</p>
+                        <p>Convidamo-lo a descobrir um mundo de sabores que aquecem o coração!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="delicias" class="py-16 sm:py-24 bg-section-alt">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl sm:text-5xl font-bold section-title-font mb-12 text-center">Nossas Delícias</h2>
+                <p class="text-center text-neutral-600 mb-10 max-w-2xl mx-auto">Explore a nossa seleção de doces e bolos, feitos artesanalmente para encantar o seu paladar. Use os filtros para encontrar exatamente o que procura!</p>
+                <div id="filter-buttons" class="flex justify-center space-x-2 sm:space-x-4 mb-10">
+                    <button class="filter-button active py-2 px-4 rounded-md text-sm font-medium" data-filter="todos">Todos</button>
+                    <button class="filter-button py-2 px-4 rounded-md text-sm font-medium" data-filter="bolos">Bolos</button>
+                    <button class="filter-button py-2 px-4 rounded-md text-sm font-medium" data-filter="doces">Doces Finos</button>
+                    <button class="filter-button py-2 px-4 rounded-md text-sm font-medium" data-filter="cupcakes">Cupcakes</button>
+                </div>
+
+                <div id="product-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    </div>
+            </div>
+        </section>
+
+        <section id="encomendar" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl sm:text-5xl font-bold section-title-font mb-12 text-center">Como Encomendar</h2>
+                <div class="max-w-3xl mx-auto grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-6 bg-purple-50 rounded-lg shadow-md border border-purple-200">
+                        <div class="text-4xl text-pink-500 mb-3">①</div>
+                        <h3 class="text-xl font-semibold text-purple-700 mb-2">Escolha sua Delícia</h3>
+                        <p class="text-sm text-neutral-600">Navegue pela nossa galeria e escolha os produtos que mais lhe agradam.</p>
+                    </div>
+                    <div class="p-6 bg-purple-50 rounded-lg shadow-md border border-purple-200">
+                        <div class="text-4xl text-pink-500 mb-3">②</div>
+                        <h3 class="text-xl font-semibold text-purple-700 mb-2">Entre em Contacto</h3>
+                        <p class="text-sm text-neutral-600">Envie-nos uma mensagem pelo WhatsApp ou formulário com o seu pedido e data.</p>
+                    </div>
+                    <div class="p-6 bg-purple-50 rounded-lg shadow-md border border-purple-200">
+                         <div class="text-4xl text-pink-500 mb-3">③</div>
+                        <h3 class="text-xl font-semibold text-purple-700 mb-2">Adoce o Seu Momento</h3>
+                        <p class="text-sm text-neutral-600">Combine os detalhes da entrega ou recolha e prepare-se para saborear!</p>
+                    </div>
+                </div>
+                 <div class="text-center mt-10">
+                    <a href="#contacto" class="btn-primary text-lg font-semibold py-3 px-8 rounded-lg shadow-md">Fazer Encomenda Agora</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="depoimentos" class="py-16 sm:py-24 bg-section-alt">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl sm:text-5xl font-bold section-title-font mb-12 text-center">O Que Dizem Nossos Clientes</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-xl border-t-4 border-pink-400">
+                        <p class="text-neutral-600 italic mb-4">"O bolo de aniversário da minha filha estava simplesmente divino! Lindo e delicioso, todos amaram. Obrigada, Doçuras da Cidimily!"</p>
+                        <p class="font-semibold text-highlight">- Ana P.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-xl border-t-4 border-pink-400">
+                        <p class="text-neutral-600 italic mb-4">"Os brigadeiros gourmet são os melhores que já provei! Encomenda super rápida e atendimento impecável."</p>
+                        <p class="font-semibold text-highlight">- Carlos M.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-xl border-t-4 border-pink-400">
+                        <p class="text-neutral-600 italic mb-4">"Cupcakes perfeitos para a festa da empresa. Fizeram o maior sucesso! Recomendo de olhos fechados."</p>
+                        <p class="font-semibold text-highlight">- Sofia L.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl sm:text-5xl font-bold section-title-font mb-12 text-center">Entre em Contacto</h2>
+                <div class="flex flex-col md:flex-row gap-10">
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-semibold text-purple-700 mb-4">Fale Connosco</h3>
+                        <p class="text-neutral-700 mb-3">Tem alguma dúvida ou quer fazer uma encomenda especial? Adoraríamos ouvir de si!</p>
+                        <p class="text-neutral-700 mb-2"><strong class="text-pink-600">Telefone/WhatsApp:</strong> (XX) XXXXX-XXXX (Simulado)</p>
+                        <p class="text-neutral-700 mb-2"><strong class="text-pink-600">Email:</strong> contacto@docurasdacidimily.pt (Simulado)</p>
+                        <p class="text-neutral-700 mb-4"><strong class="text-pink-600">Horário:</strong> Segunda a Sábado, 09:00 - 18:00</p>
+                        <p class="text-neutral-700">Siga-nos nas redes sociais para mais doçuras!</p>
+                        <div class="flex space-x-4 mt-3">
+                            <a href="#" class="text-pink-500 hover:text-pink-600 text-2xl">Instagram (Simulado)</a>
+                            <a href="#" class="text-pink-500 hover:text-pink-600 text-2xl">Facebook (Simulado)</a>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <form id="contact-form" class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-neutral-700">Nome Completo</label>
+                                <input type="text" id="name" name="name" required class="mt-1 block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-neutral-700">Email</label>
+                                <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-neutral-700">Sua Mensagem</label>
+                                <textarea id="message" name="message" rows="4" required class="mt-1 block w-full px-3 py-2 bg-white border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full btn-primary font-semibold py-3 px-4 rounded-md shadow-sm">Enviar Mensagem</button>
+                            </div>
+                            <p id="form-feedback" class="text-sm text-center"></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-purple-800 text-purple-100 py-10 text-center">
+        <p>&copy; <span id="currentYear"></span> Doçuras da Cidimily. Todos os direitos reservados.</p>
+        <p class="text-xs mt-1">Confeitaria Artesanal com Amor.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Smooth scroll and active nav link
+            const navLinks = document.querySelectorAll('nav a[href^="#"]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const sections = document.querySelectorAll('main section');
+            const desktopNavItems = document.querySelectorAll('nav .hidden.md\\:flex a.nav-link');
+            const mobileNavItems = document.querySelectorAll('#mobile-menu a.nav-link');
+
+            function setActiveLink() {
+                let current = 'inicio'; // Default to 'inicio'
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) { // Adjusted for nav height + a bit
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                [...desktopNavItems, ...mobileNavItems].forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href').substring(1) === current) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            window.addEventListener('scroll', setActiveLink);
+            setActiveLink();
+
+            // Product Data (Simulated)
+            const products = [
+                { id: 1, name: "Bolo de Chocolate Intenso", category: "bolos", price: "€35", image: "https://placehold.co/400x300/D53F8C/FFFFFF?text=Bolo+Chocolate", description: "Camadas ricas de chocolate com cobertura aveludada." },
+                { id: 2, name: "Brigadeiros Gourmet Sortidos", category: "doces", price: "€1.50/un", image: "https://placehold.co/400x300/FBCFE8/86198F?text=Brigadeiros", description: "Sabores clássicos e exóticos, feitos com chocolate belga." },
+                { id: 3, name: "Cupcakes Red Velvet", category: "cupcakes", price: "€3/un", image: "https://placehold.co/400x300/F472B6/FFFFFF?text=Cupcake+Red+Velvet", description: "Massa fofa com cream cheese frosting irresistível." },
+                { id: 4, name: "Torta de Limão Merengada", category: "bolos", price: "€28", image: "https://placehold.co/400x300/E9D5FF/4A044E?text=Torta+Limão", description: "Equilíbrio perfeito entre o cítrico e o doce do merengue." },
+                { id: 5, name: "Macarons Coloridos", category: "doces", price: "€2/un", image: "https://placehold.co/400x300/F0ABFC/86198F?text=Macarons", description: "Delicados e crocantes, com recheios variados." },
+                { id: 6, name: "Bolo de Cenoura com Brigadeiro", category: "bolos", price: "€30", image: "https://placehold.co/400x300/F9A8D4/4A044E?text=Bolo+Cenoura", description: "Um clássico amado por todos, com cobertura generosa." },
+                { id: 7, name: "Cupcakes de Baunilha com Buttercream", category: "cupcakes", price: "€2.50/un", image: "https://placehold.co/400x300/C4B5FD/86198F?text=Cupcake+Baunilha", description: "Simplesmente deliciosos, perfeitos para qualquer ocasião." },
+                { id: 8, name: "Mini Cheesecakes de Frutos Vermelhos", category: "doces", price: "€4/un", image: "https://placehold.co/400x300/BE185D/FFFFFF?text=Mini+Cheesecake", description: "Cremosos e refrescantes, uma explosão de sabor." },
+            ];
+
+            const productGallery = document.getElementById('product-gallery');
+            const filterButtons = document.querySelectorAll('#filter-buttons .filter-button');
+
+            function displayProducts(filter = 'todos') {
+                if (!productGallery) return;
+                productGallery.innerHTML = ''; // Clear existing products
+                const filteredProducts = filter === 'todos' ? products : products.filter(p => p.category === filter);
+
+                filteredProducts.forEach(product => {
+                    const card = `
+                        <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                            <img src="${product.image}" alt="[Imagem de ${product.name}]" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-xl font-semibold text-purple-700 mb-2">${product.name}</h3>
+                                <p class="text-sm text-neutral-600 mb-3 flex-grow">${product.description}</p>
+                                <p class="text-lg font-bold text-pink-600 mb-4">${product.price}</p>
+                                <a href="#contacto" class="mt-auto btn-secondary text-sm font-medium py-2 px-4 rounded-md text-center">Encomendar</a>
+                            </div>
+                        </div>
+                    `;
+                    productGallery.innerHTML += card;
+                });
+                 if (filteredProducts.length === 0) {
+                    productGallery.innerHTML = `<p class="col-span-full text-center text-neutral-500">Nenhum produto encontrado para esta categoria. Tente outra!</p>`;
+                }
+            }
+            
+            if (filterButtons.length > 0) {
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        displayProducts(this.dataset.filter);
+                    });
+                });
+            }
+            
+            displayProducts(); // Initial display of all products
+
+            // Contact Form Simulation
+            const contactForm = document.getElementById('contact-form');
+            const formFeedback = document.getElementById('form-feedback');
+
+            if (contactForm && formFeedback) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    formFeedback.textContent = 'A processar o seu pedido...';
+                    formFeedback.className = 'text-sm text-center text-pink-600';
+
+                    // Simulate API call
+                    setTimeout(() => {
+                        formFeedback.textContent = 'Mensagem enviada com sucesso! Entraremos em contacto em breve.';
+                        formFeedback.className = 'text-sm text-center text-green-600';
+                        contactForm.reset();
+                         setTimeout(() => { formFeedback.textContent = ''; }, 5000);
+                    }, 1500);
+                });
+            }
+
+            // Set current year in footer
+            const currentYearSpan = document.getElementById('currentYear');
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
+</body>
+</html>
